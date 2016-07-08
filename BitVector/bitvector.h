@@ -1,5 +1,5 @@
-#ifndef BITSET_H
-#define BITSET_H
+#ifndef BITVECTOR_H
+#define BITVECTOR_H
 
 #include <limits.h>
 #include <iostream>
@@ -15,12 +15,13 @@ using namespace std;
 
 
 
-class BitSet{
+class BitVector{
 private:
     //  CHAR_BIT = número de bits da arquitetura geralmente 8 | sizeof(int) = número de bits da inteiro
     int numero_de_bits_inteiro = CHAR_BIT * sizeof(int);
+    int numero_minimo_de_inteiros;
     int tam;
-    int *vetor = NULL;  
+    int *vetor = NULL;
     void ligarBit(int k);
     void desligarBit(int k);
     void inverterBit(int k);
@@ -29,13 +30,13 @@ private:
 
 public:
     class bit_ref{
-        friend class BitSet;
+        friend class BitVector;
         int * refInteiro;
         int tamanho_palavra;
         int bit_pos;
     public:
         bit_ref(){};
-        bit_ref(BitSet &bv, int k) {
+        bit_ref(BitVector &bv, int k) {
             tamanho_palavra = bv.numero_de_bits_inteiro;
             refInteiro = &bv.vetor[k/tamanho_palavra];
             bit_pos = k%tamanho_palavra;
@@ -96,7 +97,7 @@ public:
 
     };
 
-    BitSet(int tamanho);
+    BitVector(int tamanho);
     void print();
     void set();
     void set(int k, bool val=true);
@@ -105,8 +106,8 @@ public:
     void reset(int k);
     void flip();
     void flip(int k);
+    void resize(int newSize);
     string toString();
-
 
     bool operator[](int k)const {
         if(k<0 || k>=tam)
@@ -128,7 +129,7 @@ public:
         return bit_ref(*this,k);
     }
 
-    bool operator== ( BitSet rhs){
+    bool operator== ( BitVector rhs){
         if(tam!=rhs.tam)
             return false;
 
@@ -138,14 +139,20 @@ public:
         }
         return true;
     }
-    bool operator!= (BitSet rhs){
+    bool operator!= (BitVector rhs){
         return ! ((*this) == rhs);
     }
-
-
-
 
 };
 
 
-#endif // BITSET_H
+
+
+
+
+
+
+
+
+
+#endif // BITVECTOR_H

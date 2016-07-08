@@ -1,23 +1,23 @@
-#include "bitset.h"
+#include "bitvector.h"
 
-BitSet::BitSet(int tamanho){
+BitVector::BitVector(int tamanho){
     tam = tamanho;
-    int numero_minimo_de_inteiros = (numero_de_bits_inteiro + tam - 1)/numero_de_bits_inteiro;
+    numero_minimo_de_inteiros = (numero_de_bits_inteiro + tam - 1)/numero_de_bits_inteiro;
     vetor = new int[numero_minimo_de_inteiros];
     memset(vetor, 0, numero_minimo_de_inteiros);
 }
 
-void BitSet::print(){
+void BitVector::print(){
     cout << toString() << endl;
 
 }
 
-void BitSet::set(){
+void BitVector::set(){
     //todos os bits ficam ligados
     memset(vetor, INT_MAX, sizeof(vetor));
 }
 
-void BitSet::set(int k, bool val){
+void BitVector::set(int k, bool val){
     if(k<0 || k>=tam)
           throw std::out_of_range("index is out of range");
     if(val==true)
@@ -27,7 +27,7 @@ void BitSet::set(int k, bool val){
 
 }
 
-void BitSet::set(int k, int val){
+void BitVector::set(int k, int val){
     if(k<0 || k>=tam)
         throw std::out_of_range("index is out of range");
     if(val%2==0)
@@ -37,33 +37,50 @@ void BitSet::set(int k, int val){
 
 }
 
-void BitSet::reset(){
+void BitVector::reset(){
     memset(vetor, 0, sizeof(vetor));
 
 }
 
-void BitSet::reset(int k){
+void BitVector::reset(int k){
     if(k<0 || k>=tam)
           throw std::out_of_range("index is out of range");
     desligarBit(k);
 
 }
 
-void BitSet::flip(){
+void BitVector::flip(){
     for(int i=0; i<tam;i++){
         inverterBit(i);
     }
 
 }
 
-void BitSet::flip(int k){
+void BitVector::flip(int k){
     if(k<0 || k>=tam)
           throw std::out_of_range("index is out of range");
     inverterBit(k);
 
 }
 
-string BitSet::toString(){
+void BitVector::resize(int newSize){
+    int new_numero_minimo_de_inteiros = (numero_de_bits_inteiro + newSize - 1)/numero_de_bits_inteiro;
+    int *new_vetor = new int[new_numero_minimo_de_inteiros];
+    memset(new_vetor, 0, numero_minimo_de_inteiros);
+
+    int total = numero_minimo_de_inteiros < new_numero_minimo_de_inteiros ? numero_minimo_de_inteiros : new_numero_minimo_de_inteiros;
+    for(int i=0;i<total;i++){
+        new_vetor[i] = vetor[i];
+    }
+
+    free(vetor);
+    vetor = new_vetor;
+    tam = newSize;
+
+
+}
+
+string BitVector::toString(){
 
     char *saida = new char[tam];
     for(int i=0;i<tam;i++){
@@ -76,14 +93,14 @@ string BitSet::toString(){
 
 }
 
-void BitSet::ligarBit(int k){
+void BitVector::ligarBit(int k){
     int i = k/numero_de_bits_inteiro;
     int pos = k%numero_de_bits_inteiro;
     unsigned long aux = (1uL << pos);
     vetor[i] = vetor[i] | aux;
 }
 
-void BitSet::desligarBit(int k){
+void BitVector::desligarBit(int k){
     int i = k/numero_de_bits_inteiro;
     int pos = k%numero_de_bits_inteiro;
     unsigned long aux = ~(1uL << pos);
@@ -91,7 +108,7 @@ void BitSet::desligarBit(int k){
 
 }
 
-void BitSet::inverterBit(int k){
+void BitVector::inverterBit(int k){
     int i = k/numero_de_bits_inteiro;
     int pos = k%numero_de_bits_inteiro;
     unsigned long aux = 1uL << pos;
@@ -99,7 +116,7 @@ void BitSet::inverterBit(int k){
 
 }
 
-bool BitSet::bitKligado(const int k){
+bool BitVector::bitKligado(const int k){
     int i = k/numero_de_bits_inteiro;
     int pos = k%numero_de_bits_inteiro;
     unsigned long aux = (1uL << pos);
@@ -110,3 +127,4 @@ bool BitSet::bitKligado(const int k){
         return true;
 
 }
+
