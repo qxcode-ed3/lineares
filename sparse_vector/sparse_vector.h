@@ -24,10 +24,7 @@ public:
     sparse_vector(T standard):standard(standard){
         root = nullptr;
     }
-    void set(int index, T x){
-        if(index < 0)
-            return;
-
+    void set(unsigned int index, T x){
         if(this->root == nullptr){
             if(x == this->standard)
                 return;
@@ -64,7 +61,7 @@ public:
 
     }
 
-    T get(int index){
+    T get(unsigned int index) const{
         Node *node = this->root;
         while(node != nullptr && node->index < index)
             node = node->next;
@@ -83,8 +80,40 @@ public:
             return node->index;
         else
             return -1;
+    }    
+
+    class pos_ref{
+        friend class sparse_vector;
+        sparse_vector &sv;
+        unsigned int index;
+    public:
+        pos_ref(sparse_vector &sv, unsigned int index):sv(sv), index(index){}
+
+        pos_ref& operator=(T value){
+            sv.set(index,value);
+            return *this;
+        }
+
+        bool operator==(T value){
+            return sv.get(index)==value;
+        }
+
+        bool operator!=(T value){
+            return !operator==(value);
+        }
+
+        operator T()const{
+            return sv.get(index);
+        }
+    };
+
+    T operator[](unsigned int idx) const{
+        return this->get(idx);
     }
 
+    pos_ref operator [](unsigned int idx) {
+        return pos_ref(*this,idx);
+    }
 };
 
 #endif // SPARSE_VECTOR_H
