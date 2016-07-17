@@ -1,7 +1,6 @@
 #ifndef SPARSE_VECTOR_H
 #define SPARSE_VECTOR_H
-#include <iostream>
-#include <list>
+
 using namespace std;
 template <class T>
 class sparse_vector
@@ -116,11 +115,12 @@ public:
         return pos_ref(*this,idx);
     }
 
-    struct iterator{
-        bool operator==(iterator other){
+   struct iterator{
+        unsigned int current_index;
+        pos_ref operator*(){
 
         }
-    };
+   };
 };
 
 #endif // SPARSE_VECTOR_H
