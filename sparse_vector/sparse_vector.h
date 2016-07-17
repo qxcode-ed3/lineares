@@ -1,7 +1,6 @@
 #ifndef SPARSE_VECTOR_H
 #define SPARSE_VECTOR_H
 
-using namespace std;
 template <class T>
 class sparse_vector
 {
@@ -32,18 +31,20 @@ public:
         }else{
             Node *node,*backup;
             node = backup = root;
-            while(node != nullptr && node->index < index){
-                cout<<"lkjdsf\n";
+            while(node != nullptr && node->index < index){                
                 backup = node;
                 node = node->next;
             }
             if(node == nullptr){
-                if(x == this->standard )
+                if(x == this->standard)
                     return;
                 backup->next = new Node(x,index);
             }else if(node->index == index){
                 if(x == this->standard){
-                    backup->next = node->next;
+                    if(node==this->root)
+                        this->root = node->next;
+                    else
+                        backup->next = node->next;
                     delete (node);
                 }else{
                     node->value = x;
@@ -86,15 +87,21 @@ public:
         friend class sparse_vector;
         sparse_vector &sv;
         unsigned int index;
+        sparse_vector::Node* current_node;
+        pos_ref(sparse_vector& sv,sparse_vector::Node* node):sv(sv),current_node(node){}
     public:
-        pos_ref(sparse_vector &sv, unsigned int index):sv(sv), index(index){}
+        pos_ref(sparse_vector &sv, unsigned int index):sv(sv), index(index){current_node = nullptr;}
 
         pos_ref& operator=(T value){
+            if(current_node!=nullptr && value!=sv.standard)
+                current_node->value = value;
             sv.set(index,value);
             return *this;
         }
 
         bool operator==(T value){
+            if(current_node!=nullptr)
+                return current_node->value == value;
             return sv.get(index)==value;
         }
 
@@ -103,6 +110,8 @@ public:
         }
 
         operator T()const{
+            if(current_node!=nullptr)
+                return current_node->value;
             return sv.get(index);
         }
     };
@@ -115,12 +124,83 @@ public:
         return pos_ref(*this,idx);
     }
 
+    bool operator!=(sparse_vector other){
+        if(standard != other.standard)
+            return true;
+        Node* this_node = root;
+        Node* other_node= other.root;
+        while(this_node!=nullptr && other_node!=nullptr){
+            if(this_node->index != other_node->index || this_node->value != other_node->value)
+                return true;
+            this_node = this_node->next;
+            other_node = other_node->next;
+        }
+
+        if(this_node==nullptr && other_node==nullptr)
+            return false;
+        else
+            return true;
+    }
+
+    bool operator ==(sparse_vector other){
+        return ! operator!=(other);
+    }
+
    struct iterator{
         unsigned int current_index;
-        pos_ref operator*(){
+        sparse_vector::Node* current_node;
+        sparse_vector* sv;
 
+        pos_ref operator*(){
+            if(current_node!=nullptr && current_index==current_node->index)
+                return pos_ref(*sv,current_node);
+            else
+                return pos_ref(*sv,current_index);
         }
+
+        iterator operator++(){
+            if(current_node!=nullptr){
+                current_index++;
+                if(current_index > current_node->index)
+                    current_node = current_node->next;
+            }
+            return *(this);
+        }
+
+        bool operator==(iterator other){
+            if(current_node == nullptr){
+                return (other.current_node == nullptr && sv == other.sv);
+            }else
+                return (current_index == other.current_index && current_node == other.current_node && sv == other.sv);
+        }
+
+        bool operator!=(iterator other){
+            return !operator==(other);
+        }
+
+        iterator operator++(int){
+            iterator copy = *this;
+            ++(*this);
+            return copy;
+        }
+
    };
+
+   iterator begin(){
+       iterator it;
+       it.current_index = 0;
+       it.sv = this;
+       it.current_node = this->root;
+       return it;
+   }
+
+   iterator end(){
+       iterator it;
+       it.sv = this;
+       it.current_node = nullptr;
+       return it;
+
+   }
 };
 
 #endif // SPARSE_VECTOR_H
